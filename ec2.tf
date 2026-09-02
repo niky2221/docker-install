@@ -3,6 +3,12 @@ resource "aws_instance" "docker" {
   vpc_security_group_ids = [aws_security_group.allow-tls.id]
   instance_type = "t3.micro"
 
+  # 20GB is not enough
+  root_block_device {
+    volume_size = 50  # Set root volume size to 50GB
+    volume_type = "gp3"  # Use gp3 for better performance (optional)
+  }
+
   connection {
     host     = aws_instance.docker.public_ip
     type     = "ssh"
@@ -33,6 +39,12 @@ resource "aws_security_group" "allow-tls" {
     ingress {
       from_port   = 22
       to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+    ingress {
+      from_port   = 80
+      to_port     = 80
       protocol    = "tcp"
       cidr_blocks = ["0.0.0.0/0"]
     }
